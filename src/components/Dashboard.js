@@ -5,6 +5,7 @@ import {
 } from '@material-ui/core';
 import {makeStyles} from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
+import {VictoryChart, VictoryLine, VictoryZoomContainer, VictoryTheme} from 'victory';
 
 const useStyles = makeStyles(theme=>({
   root:{},
@@ -22,10 +23,12 @@ const useStyles = makeStyles(theme=>({
   }
 }))
 
+//DO NOT PUSH KEYS INTO GIT DO NOT//
 export default function Dashboard(){
 
   const classes = useStyles();
   const [statistics, setStatistics] = useState('');
+  const [graphData, setGraphData] = React.useState([]);
 
   const handleChange = (event) => {
     setStatistics(event.target.value);
@@ -52,6 +55,23 @@ export default function Dashboard(){
 
             <Card className={classes.graphContainer}>
               <CardContent>
+                <VictoryChart
+                    theme={VictoryTheme.material}
+                    width={600} height={350} scale={{x: "time"}}
+                              containerComponent={
+                                  <VictoryZoomContainer responsive={true}
+                                                        zoomDimension="x"
+                                  />
+                              }
+                >
+                    <VictoryLine
+                        style={{
+                            data: {stroke: "tomato"}
+                        }}
+                        data={graphData}
+                    />
+
+                </VictoryChart>
               </CardContent>
               <CardActions>
                 <FormControl className={classes.formControl}>
@@ -71,7 +91,7 @@ export default function Dashboard(){
           </Grid>
         </Grid>
       </React.Fragment>
-      
+
     </div>
   )
 }
