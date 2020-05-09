@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   AppBar, Toolbar, IconButton, Typography, Button, Card, CardContent,
   CardActions, CssBaseline, Grid, InputLabel, MenuItem, FormHelperText, FormControl, Select
@@ -6,6 +6,7 @@ import {
 import {makeStyles} from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import {VictoryChart, VictoryLine, VictoryZoomContainer, VictoryTheme} from 'victory';
+import database from '../utils/database';
 
 const useStyles = makeStyles(theme=>({
   root:{},
@@ -29,6 +30,16 @@ export default function Dashboard(){
   const classes = useStyles();
   const [statistics, setStatistics] = useState('');
   const [graphData, setGraphData] = React.useState([]);
+  const [graphPredData, setGraphPredData] = React.useState([]);
+
+  useEffect(() => {
+    database.initialize();
+    (async function(){
+      const values = await database.getValues();
+      setGraphData(values)
+    })();
+
+  }, []);
 
   const handleChange = (event) => {
     setStatistics(event.target.value);
@@ -70,6 +81,13 @@ export default function Dashboard(){
                         }}
                         data={graphData}
                     />
+                    <VictoryLine
+                        style={{
+                            data: {stroke: "blue"}
+                        }}
+                        data={graphPredData}
+                    />
+
 
                 </VictoryChart>
               </CardContent>
