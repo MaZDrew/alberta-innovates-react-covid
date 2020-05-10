@@ -1,5 +1,4 @@
 import firebase from './firebase';
-import Config from '../config/config.json';
 
 const database = {};
 
@@ -14,34 +13,34 @@ const store = {
       });
     },
 
-    async getValues(){
-      const values = await database.state.ref.child('/statistics/global/deaths/values')
+    async getGlobalData(statistic) {
+
+      const data = await database.state.ref.child(`/statistics/global/${statistic}`)
         .once('value')
         .then(snapshot => snapshot.val());
 
-      console.log(values);
-      const data = [];
-      for (var i in values){
-        const obj = values[i]
-        obj.x = new Date(obj.x)
-        data.push(obj)
-      }
-      return data
-    },
+      const valData = data.values;
+      const predData = data.predictions;
 
-    async getPredictions(){
-      const values = await database.state.ref.child('/statistics/global/deaths/predictions')
-        .once('value')
-        .then(snapshot => snapshot.val());
+      const maxRange = data.maxRange;
+      const maxDomain = new Date(data.maxDomain);
+      const minDomain = new Date(data.minDomain);
 
-      console.log(values);
-      const data = [];
-      for (var i in values){
-        const obj = values[i]
+      const values = [];
+      for (var i in valData){
+        const obj = valData[i]
         obj.x = new Date(obj.x)
-        data.push(obj)
+        values.push(obj)
       }
-      return data
+
+      const predictions = [];
+      for (var j in predData){
+        const obj = predData[j]
+        obj.x = new Date(obj.x)
+        predictions.push(obj)
+      }
+
+      return {values, predictions, maxRange, maxDomain, minDomain}
     }
 };
 

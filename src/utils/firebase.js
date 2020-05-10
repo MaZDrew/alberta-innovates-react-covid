@@ -11,8 +11,6 @@ class FirebaseService {
         this.databaseURL = databaseURL + '';
         this.name = name || 'DEFAULT';
 
-        console.log(apiKey, authDomain, databaseURL)
-        
         if ( apiKey && authDomain && databaseURL ) {
 
             try {
