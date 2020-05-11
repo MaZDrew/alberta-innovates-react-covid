@@ -7,9 +7,9 @@ const store = {
     initialize(){
       if (database.state) return;
       database.state = new firebase({
-        apiKey: '',
-        authDomain: '',
-        databaseURL: '',
+        apiKey: 'AIzaSyDoc83XG5wL6ObcXFKjhmzlbgqmKhdzZEY',
+        authDomain: 'ml-covid.firebaseapp.com',
+        databaseURL: 'https://ml-covid.firebaseio.com',
       });
     },
 
@@ -22,9 +22,10 @@ const store = {
       const valData = data.values;
       const predData = data.predictions;
 
-      const maxRange = data.maxRange;
-      const maxDomain = new Date(data.maxDomain);
-      const minDomain = new Date(data.minDomain);
+      const maxRange = data.range.maxRange;
+      const minRange = data.range.minRange;
+      const maxDomain = new Date(data.domain.maxDomain);
+      const minDomain = new Date(data.domain.minDomain);
 
       const values = [];
       for (var i in valData){
@@ -40,7 +41,7 @@ const store = {
         predictions.push(obj)
       }
 
-      return {values, predictions, maxRange, maxDomain, minDomain}
+      return {values, predictions, minRange, maxRange, maxDomain, minDomain}
     }
 };
 

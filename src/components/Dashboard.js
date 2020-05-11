@@ -54,7 +54,8 @@ const stats = [
   {name: 'Concurrent', value: 'concurrent'},
   {name: 'Death Rate', value: 'death_rate'},
   {name: 'Confirmed Rate', value: 'confirmed_rate'},
-  {name: 'Recovery Rate', value: 'recovered_rate'}
+  {name: 'Recovery Rate', value: 'recovered_rate'},
+  {name: 'Concurrent Rate', value: 'concurrent_rate'}
 ];
 
 const statNameLookup = {
@@ -64,13 +65,14 @@ const statNameLookup = {
   'concurrent' : 'Concurrent',
   'death_rate': ' Death Rate',
   'confirmed_rate' : 'Confirmed Rate',
-  'recovered_rate' : 'Recovery rate'
+  'recovered_rate' : 'Recovery rate',
+  'concurrent_rate' : 'Concurrent rate'
 };
 
 const zoomFactor = 6000;
 const VictoryZoomVoronoiContainer = createContainer("zoom", "voronoi");
 
-export default function Dashboard(){
+export default function Dashboard() {
 
   const classes = useStyles();
 
@@ -80,7 +82,7 @@ export default function Dashboard(){
   const [valueData, setValueData] = useState([]);
   const [predictionData, setPredictionData] = useState([]);
 
-  const [maxRange, setMaxRange] = useState(0);
+  const [range, setRange] = useState({min:0, max:10000});
   const [domain, setDomain] = useState({min:0, max:new Date()});
 
   const [view, setView] = useState('chart');
@@ -97,7 +99,11 @@ export default function Dashboard(){
 
     const data = await database.getGlobalData(statistic);
 
-    setMaxRange(data.maxRange);
+    setRange({
+      min:data.minRange,
+      max:data.maxRange
+    });
+
     setDomain({
       min:data.minDomain,
       max:data.maxDomain
@@ -197,7 +203,7 @@ export default function Dashboard(){
                           labels={({ datum }) => `${statisticName}: ${datum.y}`}
                           labelComponent={<VictoryTooltip/>}
                           minimumZoom={{x: domain.max / zoomFactor}}
-                          zoomDomain={{x: [domain.min, domain.max], y:[0, maxRange]}}
+                          zoomDomain={{x: [domain.min, domain.max], y:[range.min, range.max]}}
                           responsive={true}
                           zoomDimension="x"
                         />
