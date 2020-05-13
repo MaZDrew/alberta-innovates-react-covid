@@ -20,9 +20,6 @@ const useStyles = makeStyles(theme=>({
   menuButton:{
     marginRight: theme.spacing(2),
   },
-  title:{
-    flexGrow: 1,
-  },
   graphContainer:{
 
   },
@@ -43,7 +40,20 @@ const useStyles = makeStyles(theme=>({
     marginBottom:theme.spacing(2)
   },
   sources: {
-    margin:theme.spacing(4)
+    marginTop:theme.spacing(1)
+  },
+  sourceTop: {
+    marginTop:theme.spacing(2),
+  },
+  sourceBottom: {
+    marginTop:theme.spacing(1),
+    marginBottom:theme.spacing(2)
+  },
+  info: {
+    marginTop:theme.spacing(2)
+  },
+  infoZoomPan: {
+    marginTop:theme.spacing(1)
   },
 }))
 
@@ -55,7 +65,7 @@ const stats = [
   {name: 'Death Rate', value: 'death_rate'},
   {name: 'Confirmed Rate', value: 'confirmed_rate'},
   {name: 'Recovery Rate', value: 'recovered_rate'},
-  {name: 'Concurrent Rate', value: 'concurrent_rate'}
+  {name: 'Active Rate', value: 'concurrent_rate'}
 ];
 
 const statNameLookup = {
@@ -66,7 +76,19 @@ const statNameLookup = {
   'death_rate': ' Death Rate',
   'confirmed_rate' : 'Confirmed Rate',
   'recovered_rate' : 'Recovery rate',
-  'concurrent_rate' : 'Concurrent rate'
+  'concurrent_rate' : 'Active rate'
+};
+
+const scopes = [
+  {name: 'Global', value: 'global'},
+  {name: 'Canada', value: 'CAN'},
+  {name: 'United States', value: 'USA'}
+];
+
+const scopeNameLookup = {
+  'USA': 'United States',
+  'CAN': ' Canada',
+  'Global' : 'global'
 };
 
 const zoomFactor = 6000;
@@ -76,8 +98,11 @@ export default function Dashboard() {
 
   const classes = useStyles();
 
-  const [statistic, setStatistic] = useState('deaths');
+  const [statistic, setStatistic] = useState('recovered_rate');
   const [statisticName, setStatisticName] = useState('');
+
+  const [scope, setScope] = useState('global');
+  const [scopeName, setScopeName] = useState('');
 
   const [valueData, setValueData] = useState([]);
   const [predictionData, setPredictionData] = useState([]);
@@ -89,15 +114,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     database.initialize();
-    updateGraph(statistic);
+    updateGraph(statistic, scope);
   }, []);
 
-  const updateGraph = async (statistic) => {
+  const updateGraph = async (statistic, scope) => {
 
     setStatistic(statistic);
     setStatisticName(statNameLookup[statistic]);
 
-    const data = await database.getGlobalData(statistic);
+    setScope(scope);
+    setScopeName(scopeNameLookup[scope]);
+
+    const data = await database.getGlobalData(statistic, scope);
 
     setRange({
       min:data.minRange,
@@ -113,8 +141,12 @@ export default function Dashboard() {
     setPredictionData(data.predictions);
   }
 
-  const handleChange = async (event) => {
-    updateGraph(event.target.value);
+  const handleStatChange = async (event) => {
+    updateGraph(event.target.value, scope);
+  }
+
+  const handleScopeChange = async (event) => {
+    updateGraph(statistic, event.target.value);
   }
 
   return (
@@ -122,12 +154,28 @@ export default function Dashboard() {
       <AppBar position="static">
 
         <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            Machine Learning Covid-19 Predictions
-          </Typography>
-          <Button color="inherit" onClick={() => setView('chart')}>Stats</Button>
-          <Button color="inherit" onClick={() => setView('sources')}>Sources</Button>
-          <Button color="inherit" onClick={() => setView('contactus')}>Contact Us</Button>
+          <Grid
+            container
+            direction="row"
+            justify="flex-start"
+          >
+            <Typography
+              variant="h6"
+              align='center'
+              style={{wordWrap: "break-word" }}>
+              <b>Machine Learning Covid-19 Predictions</b>
+            </Typography>
+          </Grid>
+          <Grid
+            container
+            direction="row"
+            justify="flex-end"
+            alignItems="center"
+          >
+            <Button color="inherit" onClick={() => setView('chart')}>Stats</Button>
+            <Button color="inherit" onClick={() => setView('sources')}>Sources</Button>
+            <Button color="inherit" onClick={() => setView('contactus')}>Contact Us</Button>
+          </Grid>
         </Toolbar>
       </AppBar>
 
@@ -146,11 +194,13 @@ export default function Dashboard() {
                     <Divider variant="middle"/>
                   </Typography>
                   <br/>
-                  <Typography variant="subtitle1">
+                  <Typography variant="subtitle1" align='center'
+                  style={{wordWrap: "break-word" }}>
                     <b>Brayden Blackwell (braydenblackwell21@gmail.com)</b> : Software Developer
                   </Typography>
                   <br/>
-                  <Typography variant="subtitle1">
+                  <Typography variant="subtitle1" align='center'
+                  style={{wordWrap: "break-word" }}>
                     <b>Morgan Zuk (morgan.zuk@ucalgary.ca)</b> : Economics major @ The University of Calgary
                   </Typography>
                   <br/>
@@ -167,15 +217,29 @@ export default function Dashboard() {
             <Grid item xs={12} sm={10} md={10} lg={8}>
               <Card className={classes.graphContainer}>
                 <Grid container direction="column" justify="center" alignItems="center">
-                  <Typography variant="subtitle1" className={classes.sources}>
-                    <Link href="https://covidapi.info/api/v1/global/count">
-                      <b>Data Source: </b> https://covidapi.info/api/v1/global/count
+                  <Typography
+                    variant="subtitle1"
+                    align="center"
+                    style={{ wordWrap: "break-word" }}
+                    className={classes.sourceTop}>
+                    <Link href="https://covidapi.info/">
+                      <b>Data Source: </b> https://covidapi.info/
                     </Link>
-                    <br/>
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    align="center"
+                    style={{ wordWrap: "break-word" }}
+                    className={classes.sources}>
                     <Link href="https://github.com/MaZDrew/alberta-innovates-ts-ml-covid">
                       <b>Machine Learning Source: </b> https://github.com/MaZDrew/alberta-innovates-ts-ml-covid
                     </Link>
-                    <br/>
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    align="center"
+                    style={{ wordWrap: "break-word" }}
+                    className={classes.sourceBottom}>
                     <Link href="https://github.com/MaZDrew/alberta-innovates-react-covid">
                       <b>Website Source: </b> https://github.com/MaZDrew/alberta-innovates-react-covid
                     </Link>
@@ -190,7 +254,7 @@ export default function Dashboard() {
       {view === 'chart' && <React.Fragment>
         <CssBaseline />
         <Grid container spacing={2} justify='center' alignItems='center'>
-          <Grid item xs={12} sm={10} md={10} lg={8}>
+          <Grid item xs={12} sm={10} lg={8}>
 
             <Card className={classes.graphContainer}>
 
@@ -228,23 +292,44 @@ export default function Dashboard() {
 
                 <Grid
                   container
-                  direction="column"
+                  direction="row"
                   justify="center"
                   alignItems="center"
                 >
                   <Select
                     className={classes.statSelect}
+                    value={scope}
+                    onChange={handleScopeChange}
+                  >
+                    {scopes.map((scope, index) => (
+                        <MenuItem key={scope.name} value={scope.value}>{scope.name}</MenuItem>
+                    ))}
+                  </Select>
+                  <Select
+                    className={classes.statSelect}
                     value={statistic}
-                    onChange={handleChange}
+                    onChange={handleStatChange}
                   >
                     {stats.map((statData, index) => (
-                        <MenuItem key={index} value={statData.value}>{statData.name}</MenuItem>
+                        <MenuItem key={statData.name} value={statData.value}>{statData.name}</MenuItem>
                     ))}
                   </Select>
                 </Grid>
 
             </Card>
-
+            <Grid
+              container
+              direction="column"
+              justify="center"
+              alignItems="center"
+            >
+              <Typography variant="subheading" className={classes.info}>
+                <i>True values and predictions updated every 24 hours.</i>
+              </Typography>
+              <Typography variant="subheading" className={classes.infoZoomPan}>
+                <i>Use the mouse wheel to zoom in. Click and drag to pan.</i>
+              </Typography>
+            </Grid>
           </Grid>
         </Grid>
       </React.Fragment>}

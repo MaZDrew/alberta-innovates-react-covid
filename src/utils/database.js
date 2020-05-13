@@ -13,9 +13,9 @@ const store = {
       });
     },
 
-    async getGlobalData(statistic) {
+    async getGlobalData(statistic, scope) {
 
-      const data = await database.state.ref.child(`/statistics/global/${statistic}`)
+      const data = await database.state.ref.child(`/statistics/${scope}/${statistic}`)
         .once('value')
         .then(snapshot => snapshot.val());
 
