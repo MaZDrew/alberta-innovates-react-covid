@@ -1,14 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import {
-  AppBar, Toolbar, IconButton, Typography, Button, Card, CardContent,
-  CardActions, CssBaseline, Grid, InputLabel, MenuItem, FormHelperText,
+  AppBar, Toolbar, Typography, Button, Card,
+  CssBaseline, Grid, InputLabel, MenuItem,
   FormControl, Select, Avatar, Divider, Link
 } from '@material-ui/core';
 import {makeStyles} from '@material-ui/core/styles';
-import MenuIcon from '@material-ui/icons/Menu';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import {
-   VictoryChart, VictoryLine, VictoryZoomContainer,
+   VictoryChart, VictoryLine,
    VictoryTheme, VictoryTooltip, VictoryLegend, createContainer
 } from 'victory';
 import database from '../utils/database';
@@ -61,7 +60,7 @@ const stats = [
   {name: 'Deaths', value: 'deaths'},
   {name: 'Confirmed', value: 'confirmed'},
   {name: 'Recovered', value: 'recovered'},
-  {name: 'Concurrent', value: 'concurrent'},
+  {name: 'Active', value: 'concurrent'},
   {name: 'Death Rate', value: 'death_rate'},
   {name: 'Confirmed Rate', value: 'confirmed_rate'},
   {name: 'Recovery Rate', value: 'recovered_rate'},
@@ -72,7 +71,7 @@ const statNameLookup = {
   'deaths': ' Deaths',
   'confirmed' : 'Confirmed',
   'recovered' : 'Recovered',
-  'concurrent' : 'Concurrent',
+  'concurrent' : 'Active',
   'death_rate': ' Death Rate',
   'confirmed_rate' : 'Confirmed Rate',
   'recovered_rate' : 'Recovery rate',
@@ -98,14 +97,18 @@ export default function Dashboard() {
 
   const classes = useStyles();
 
-  const [statistic, setStatistic] = useState('recovered_rate');
+  const [statistic, setStatistic] = useState('deaths');
   const [statisticName, setStatisticName] = useState('');
 
   const [scope, setScope] = useState('global');
   const [scopeName, setScopeName] = useState('');
 
+  const [historyList, setHistoryList] = useState([]);
+  const [historyDate, setHistoryDate] = useState('');
+
   const [valueData, setValueData] = useState([]);
   const [predictionData, setPredictionData] = useState([]);
+  const [historyData, setHistoryData] = useState([]);
 
   const [range, setRange] = useState({min:0, max:10000});
   const [domain, setDomain] = useState({min:0, max:new Date()});
@@ -127,6 +130,10 @@ export default function Dashboard() {
 
     const data = await database.getGlobalData(statistic, scope);
 
+    setHistoryData([]);
+    setHistoryList(data.historyList);
+    setHistoryDate(data.historyList[0]);
+
     setRange({
       min:data.minRange,
       max:data.maxRange
@@ -147,6 +154,12 @@ export default function Dashboard() {
 
   const handleScopeChange = async (event) => {
     updateGraph(statistic, event.target.value);
+  }
+
+  const handleHistoryChange = async (event) => {
+    setHistoryDate(event.target.value);
+    const data = await database.getHistoricalData(statistic, scope, event.target.value);
+    setHistoryData(data.history);
   }
 
   return (
@@ -286,7 +299,7 @@ export default function Dashboard() {
                       data={valueData}
                   />
                   <VictoryLine style={{data: {stroke: "tomato"}, labels: {fill: "tomato"}}}
-                      data={predictionData}
+                      data={!historyData.length ? predictionData : historyData}
                   />
                 </VictoryChart>
 
@@ -296,24 +309,42 @@ export default function Dashboard() {
                   justify="center"
                   alignItems="center"
                 >
-                  <Select
-                    className={classes.statSelect}
-                    value={scope}
-                    onChange={handleScopeChange}
-                  >
-                    {scopes.map((scope, index) => (
-                        <MenuItem key={scope.name} value={scope.value}>{scope.name}</MenuItem>
-                    ))}
-                  </Select>
-                  <Select
-                    className={classes.statSelect}
-                    value={statistic}
-                    onChange={handleStatChange}
-                  >
-                    {stats.map((statData, index) => (
-                        <MenuItem key={statData.name} value={statData.value}>{statData.name}</MenuItem>
-                    ))}
-                  </Select>
+                  <FormControl>
+                    <InputLabel>Region</InputLabel>
+                    <Select
+                      className={classes.statSelect}
+                      value={scope}
+                      onChange={handleScopeChange}
+                    >
+                      {scopes.map((scope, index) => (
+                          <MenuItem key={scope.name} value={scope.value}>{scope.name}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl>
+                    <InputLabel>Statistic</InputLabel>
+                    <Select
+                      className={classes.statSelect}
+                      value={statistic}
+                      onChange={handleStatChange}
+                    >
+                      {stats.map((statData, index) => (
+                          <MenuItem key={statData.name} value={statData.value}>{statData.name}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl disabled={!historyList.length}>
+                    <InputLabel>Date</InputLabel>
+                      <Select
+                        className={classes.statSelect}
+                        value={historyDate}
+                        onChange={handleHistoryChange}
+                      >
+                        {historyList.map((date, index) => (
+                            <MenuItem key={index} value={date}>{date}</MenuItem>
+                        ))}
+                      </Select>
+                  </FormControl>
                 </Grid>
 
             </Card>
@@ -323,10 +354,10 @@ export default function Dashboard() {
               justify="center"
               alignItems="center"
             >
-              <Typography variant="subheading" className={classes.info}>
+              <Typography variant="body1" className={classes.info}>
                 <i>True values and predictions updated every 24 hours.</i>
               </Typography>
-              <Typography variant="subheading" className={classes.infoZoomPan}>
+              <Typography variant="body1" className={classes.infoZoomPan}>
                 <i>Use the mouse wheel to zoom in. Click and drag to pan.</i>
               </Typography>
             </Grid>
