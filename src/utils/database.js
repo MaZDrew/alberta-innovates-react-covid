@@ -13,6 +13,22 @@ const store = {
       });
     },
 
+    async getHistoricalData(statistic, scope, date) {
+
+      const historyData = await database.state.ref.child(`/statistics/${scope}/${statistic}/history/${date}`)
+        .once('value')
+        .then(snapshot => snapshot.val());
+
+      const history = [];
+      for (var i in historyData){
+        const obj = historyData[i]
+        obj.x = new Date(obj.x)
+        history.push(obj)
+      }
+
+      return {history}
+    },
+
     async getGlobalData(statistic, scope) {
 
       const data = await database.state.ref.child(`/statistics/${scope}/${statistic}`)
@@ -21,6 +37,9 @@ const store = {
 
       const valData = data.values;
       const predData = data.predictions;
+
+      const historyData = data.history || {};
+      const lastUpdatedTrueValue = data.lastUpdated;
 
       const maxRange = data.range.maxRange;
       const minRange = data.range.minRange;
@@ -41,7 +60,13 @@ const store = {
         predictions.push(obj)
       }
 
-      return {values, predictions, minRange, maxRange, maxDomain, minDomain}
+      const historyList = Object.keys(historyData);
+      historyList.unshift(lastUpdatedTrueValue);
+
+      return {
+         values, predictions, historyList, lastUpdatedTrueValue,
+         minRange, maxRange, maxDomain, minDomain
+      }
     }
 };
 
