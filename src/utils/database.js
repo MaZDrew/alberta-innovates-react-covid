@@ -7,9 +7,9 @@ const store = {
     initialize(){
       if (database.state) return;
       database.state = new firebase({
-        apiKey: 'AIzaSyDoc83XG5wL6ObcXFKjhmzlbgqmKhdzZEY',
-        authDomain: 'ml-covid.firebaseapp.com',
-        databaseURL: 'https://ml-covid.firebaseio.com',
+        apiKey: '',
+        authDomain: '',
+        databaseURL: '',
       });
     },
 
