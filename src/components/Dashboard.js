@@ -267,7 +267,7 @@ export default function Dashboard() {
       {view === 'chart' && <React.Fragment>
         <CssBaseline />
         <Grid container spacing={2} justify='center' alignItems='center'>
-          <Grid item xs={12} sm={10} lg={8}>
+          <Grid item xs={12} sm={10} lg={7}>
 
             <Card className={classes.graphContainer}>
 
@@ -334,7 +334,7 @@ export default function Dashboard() {
                     </Select>
                   </FormControl>
                   <FormControl disabled={!historyList.length}>
-                    <InputLabel>Date</InputLabel>
+                    <InputLabel>Date of Prediction</InputLabel>
                       <Select
                         className={classes.statSelect}
                         value={historyDate}
@@ -355,7 +355,7 @@ export default function Dashboard() {
               alignItems="center"
             >
               <Typography variant="body1" className={classes.info}>
-                <i>True values and predictions updated every 24 hours.</i>
+                <i>True values and predictions updated every 24 hours @ 12:00 PM UTC</i>
               </Typography>
               <Typography variant="body1" className={classes.infoZoomPan}>
                 <i>Use the mouse wheel to zoom in. Click and drag to pan.</i>
