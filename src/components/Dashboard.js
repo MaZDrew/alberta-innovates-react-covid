@@ -25,8 +25,12 @@ const useStyles = makeStyles(theme=>({
   formControl:{
     minWidth: 300
   },
+  formControlSelect:{
+    maxHeight: 300
+  },
   statSelect: {
-    margin:theme.spacing(2)
+    margin:theme.spacing(2),
+    maxHeight: '150px'
   },
   avatars: {
     margin:theme.spacing(4)
@@ -333,7 +337,7 @@ export default function Dashboard() {
                       ))}
                     </Select>
                   </FormControl>
-                  <FormControl disabled={!historyList.length}>
+                  <FormControl disabled={!historyList.length} className={classes.formControlSelect}>
                     <InputLabel>Date of Prediction</InputLabel>
                       <Select
                         className={classes.statSelect}

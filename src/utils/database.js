@@ -6,10 +6,11 @@ const store = {
 
     initialize(){
       if (database.state) return;
+      console.log(process.env.REACT_APP_FIREBASE_API_KEY)
       database.state = new firebase({
-        apiKey: '',
-        authDomain: '',
-        databaseURL: '',
+        apiKey: `${process.env.REACT_APP_FIREBASE_API_KEY}`,
+        authDomain: `${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+        databaseURL: `https://${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseio.com`,
       });
     },
 
@@ -61,6 +62,7 @@ const store = {
       }
 
       const historyList = Object.keys(historyData);
+      historyList.reverse();
       historyList.unshift(lastUpdatedTrueValue);
 
       return {
