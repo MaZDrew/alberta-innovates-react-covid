@@ -6,7 +6,6 @@ const store = {
 
     initialize(){
       if (database.state) return;
-      console.log(process.env.REACT_APP_FIREBASE_API_KEY)
       database.state = new firebase({
         apiKey: `${process.env.REACT_APP_FIREBASE_API_KEY}`,
         authDomain: `${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseapp.com`,
